@@ -27,6 +27,7 @@ import { useCart } from "../CartContext";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -50,6 +51,8 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
     category: "",
     subCategory: ""
   });
+
+  console.log(editingProduct, "sdaASasAS")
 
   const handleToggle = async (id, checked) => {
     if (checked == false){
@@ -102,6 +105,10 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
       return false;
     }
   };
+
+  const handleUpdate = ()=>{
+
+  }
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -216,7 +223,7 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
       setEditFormData({
         name: editingProduct.name || "",
         description: editingProduct.description || "",
-        description: editingProduct.description || "",
+        // description: editingProduct.description || "",
 
         specialization: editingProduct.specialization || "",
         
@@ -391,6 +398,7 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
                       {product.name}
                     </h3>
                     <div className="flex space-x-1">
+                    <Link  to={`/edit/${product._id}`}  >
                       <button
                         className="p-1.5 rounded-full bg-gray-50 hover:bg-gray-100 text-blue-600"
                         onClick={() => setEditingProduct(product)}
@@ -398,6 +406,7 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
                       >
                         <Edit size={16} />
                       </button>
+                    </Link>
                       <button
                         className="p-1.5 rounded-full bg-gray-50 hover:bg-gray-100 text-red-600"
                         onClick={() => deleteP(product._id)}
@@ -696,7 +705,7 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
                     <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
                     <input
                       type="text"
-                      value={editFormData.name}
+                      value={editingProduct.name}
                       onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
@@ -719,11 +728,14 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <CKEditor
                 editor={ClassicEditor}
-                data={editFormData.description}
+                data={editingProduct.description}
                 onChange={(event, editor) => {
                   const data = editor.getData();
-                  setEditFormData({...editFormData, description: data});
+                  setEditFormData({...editingProduct, description: data});
                 }}
+                     config={{
+                        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+                      }}
               />
 </div>
 
@@ -734,10 +746,10 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
                     <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
                     <CKEditor
                       editor={ClassicEditor}
-                      data={editFormData.specialization}
+                      data={editingProduct.specialization}
                       onChange={(event, editor) => {
                         const data = editor.getData();
-                        setEditFormData({...editFormData, specialization: data});
+                        setEditFormData({...editingProduct, specialization: data});
                       }}
                       config={{
                         toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
@@ -768,6 +780,7 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
 
  <label className="flex items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md cursor-pointer hover:border-primary-500">
             <div className="flex flex-col items-center space-y-2">
+             
               <Upload className="w-6 h-6 text-gray-500" />
               <span className="font-medium text-gray-600">
                 Drop files or{" "}
@@ -798,6 +811,7 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
               </span>
               <span className="text-xs text-gray-500">(PDF only)</span>
             </div>
+            <img src={editingProduct.images[0]} alt="" />
             <input
               type="file"
               name="pdf"
@@ -815,6 +829,7 @@ const [imageFilesPdf, setImageFilesPdf] = useState([]);
 
                 <div className="flex gap-3">
                   <button
+                  onClick={handleUpdate}
                     type="submit"
                     className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-md"
                   >

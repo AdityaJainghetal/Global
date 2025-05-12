@@ -81,66 +81,6 @@ const getProductById = async (req, res) => {
 };
 
 // Update a product
-const updateProduct = async (req, res) => {
-  try {
-    const {
-      name,
-      description,
-      specialization,
-      category,
-      subCategory,
-      PDFbrochure
-    } = req.body;
-
-    const uploadedImages = [];
-
-    const files = Array.isArray(req.files?.images)
-      ? req.files.images
-      : req.files?.images
-      ? [req.files.images]
-      : [];
-
-    for (let file of files) {
-      const buffer = file.data;
-      const uploadResponse = await imagekit.upload({
-        file: buffer,
-        fileName: file.name,
-      });
-      uploadedImages.push(uploadResponse.url);
-    }
-
-    const updatedFields = {
-      name,
-      description,
-      specialization,
-      category,
-      subCategory,
-      PDFbrochure
-    };
-
-    if (uploadedImages.length > 0) {
-      updatedFields.images = uploadedImages;
-    }
-
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updatedFields,
-      { new: true }
-    );
-
-    if (!updatedProduct) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    res.status(200).json(updatedProduct);
-  } catch (error) {
-    console.error("Error updating product:", error);
-    res.status(500).json({ message: error.message });
-  }
-};
-
-
-
 // const updateProduct = async (req, res) => {
 //   try {
 //     const {
@@ -149,8 +89,26 @@ const updateProduct = async (req, res) => {
 //       specialization,
 //       category,
 //       subCategory,
-//       size,
+//       images,
+//       PDFbrochure
 //     } = req.body;
+
+//     const uploadedImages = [];
+
+//     const files = Array.isArray(req.files?.images)
+//       ? req.files.images
+//       : req.files?.images
+//       ? [req.files.images]
+//       : [];
+
+//     for (let file of files) {
+//       const buffer = file.data;
+//       const uploadResponse = await imagekit.upload({
+//         file: buffer,
+//         fileName: file.name,
+//       });
+//       uploadedImages.push(uploadResponse.url);
+//     }
 
 //     const updatedFields = {
 //       name,
@@ -158,32 +116,12 @@ const updateProduct = async (req, res) => {
 //       specialization,
 //       category,
 //       subCategory,
-//       size: size ? JSON.parse(size) : []
+//       images,
+//       PDFbrochure
 //     };
-
-//     // --- Handle new images (if any) ---
-//     const uploadedImages = [];
-//     for (const file of req.files?.images || []) {
-//       const { url } = await imagekit.upload({
-//         file: file.buffer,
-//         fileName: file.originalname,
-//         folder: '/products'
-//       });
-//       uploadedImages.push(url);
-//     }
 
 //     if (uploadedImages.length > 0) {
 //       updatedFields.images = uploadedImages;
-//     }
-
-//     // --- Handle new PDF brochure (if any) ---
-//     if (req.files?.PDFbrochure && req.files.PDFbrochure[0]) {
-//       const pdfFile = req.files.PDFbrochure[0];
-//       const filename = `${Date.now()}-${pdfFile.originalname}`;
-//       const savePath = path.join(__dirname, '..', 'uploads', 'pdfs', filename);
-//       fs.writeFileSync(savePath, pdfFile.buffer);
-//       const pdfUrl = `${req.protocol}://${req.get('host')}/uploads/pdfs/${filename}`;
-//       updatedFields.PDFbrochure = pdfUrl;
 //     }
 
 //     const updatedProduct = await Product.findByIdAndUpdate(
@@ -203,7 +141,7 @@ const updateProduct = async (req, res) => {
 //   }
 // };
 
-// Delete a product
+// // Delete a product
 const deleteProduct = async (req, res) => {
   try {
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
@@ -216,6 +154,78 @@ const deleteProduct = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+const updateProduct = async (req, res) => {
+  console.log(req.body, "REQ")
+  try {
+    const {
+      name,
+      description,
+      specialization,
+      category,
+      subCategory,
+      images,
+      PDFbrochure
+    } = req.body;
+
+
+    const uploadedImages = [];
+
+    // Handle images upload
+    const files = Array.isArray(req?.files?.images)
+      ? req.files.images
+      : req.files?.images
+      ? [req.files.images]
+      : [];
+
+    for (let file of files) {
+      const buffer = file.data;
+      const uploadResponse = await imagekit.upload({
+        file: buffer,
+        fileName: file.name,
+      });
+      uploadedImages.push(uploadResponse.url);
+    }
+
+    // Prepare updated fields
+    const updatedFields = {
+      ...(name && { name }),
+      ...(description && { description }),
+      ...(specialization && { specialization }),
+      ...(category && { category }),
+      ...(subCategory && { subCategory }),
+      ...(PDFbrochure && { PDFbrochure }),
+    };
+
+    // Overwrite images only if new ones are uploaded
+    if (uploadedImages.length > 0) {
+      updatedFields.images = uploadedImages;
+    } else if (images) {
+      // If images (string URLs) sent via body, allow updating them too
+      updatedFields.images = images;
+    }
+
+    console.log(updatedFields, "UUUUU")
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updatedFields,
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 const getproducthome = async (req, res) => {
   const { homeVisibility } = req.body;
 
