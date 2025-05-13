@@ -12,6 +12,7 @@ import {
   LogOut
 } from "lucide-react";
 
+// Define the navigation items
 const navItems = [
   { to: "/", label: "Products", icon: Home },
   { to: "/categories", label: "Categories", icon: Layers },
@@ -25,9 +26,10 @@ const Sidebar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   
+  // Logout function clears localStorage and redirects to login page
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/");  // Redirecting to login page after logout
   };
 
   return (
@@ -51,8 +53,7 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full bg-white shadow-lg border-r z-50 transition-all duration-300 ease-in-out
-          ${mobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-64'}
-        `}
+          ${mobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-64'}`}
       >
         <div className="h-full flex flex-col">
           {/* Logo/Site Name */}
@@ -87,7 +88,7 @@ const Sidebar = () => {
               ))}
               <li>
                 <button
-                  onClick={handleLogout}
+                  onClick={()=> (handleLogout(), navigate(0))}
                   className="flex items-center w-full px-3 py-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200"
                 >
                   <LogOut className="w-5 h-5 mr-3" />
